@@ -36,7 +36,7 @@ exports.clazz = function (proto) {
  *
  */
 
-exports.assign = function (source) {
+exports.modify = function (source) {
   for (var _len = arguments.length, targets = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
     targets[_key - 1] = arguments[_key];
   }
@@ -67,7 +67,7 @@ exports.getter = function (key) {
 
 exports.setter = function (key) {
   return function (val) {
-    return exports.assign(this, _defineProperty({}, key, val));
+    return exports.modify(this, _defineProperty({}, key, val));
   };
 };
 
@@ -92,7 +92,7 @@ exports.alias = function (key, methodName) {
 };
 
 /**
- * A combination between `assign` and `alias`. Creates a method that modifies an object's key and returns a new version
+ * A combination between `set` and `alias`. Creates a method that modifies an object's key and returns a new version
  * of the object with the new version of the key. Can be for creating shorthands for calling a `setter`.
  *
  * @param {string} key The key where the aliased object is stored.
@@ -106,6 +106,6 @@ exports.lens = function (key, methodName) {
   return function () {
     var _key3;
 
-    return exports.assign(this, _defineProperty({}, key, (_key3 = this[key])[methodName].apply(_key3, arguments)));
+    return exports.modify(this, _defineProperty({}, key, (_key3 = this[key])[methodName].apply(_key3, arguments)));
   };
 };

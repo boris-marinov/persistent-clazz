@@ -4,8 +4,10 @@
   "description": "A collection of utilities for making lightweight persistent objects in JS.",
   "main": "./dist/main.js",
   "scripts": {
-    "docs": "cat ./docs/about.md <(jsdoc2md ./src/main.js) <(awk -v sp='    ' '{print sp $0}' ./test/main.js) >README.md",
-    "build": "babel src/ -d dist", 
+    "docs": "npm run jsdoc && cat ./docs/about.md ./test/main.js ./docs/about2.md ./docs/jsdoc.md >README.md",
+    "jsdoc": "jsdoc2md src/main.js > ./docs/jsdoc.md",
+    "build": "babel src/ -d dist",
+    "prepublish": "npm run docs && npm run build",
     "test": "node --harmony_destructuring --es_staging node_modules/nodeunit/bin/nodeunit"
   },
   "repository": {

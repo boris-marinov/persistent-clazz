@@ -28,7 +28,7 @@ exports.clazz = (proto) => {
  *
  */
 
-exports.assign = function (source, ...targets) {
+exports.modify = function (source, ...targets) {
   return Object.freeze(Object.assign(Object.create(Object.getPrototypeOf(source)), source, ...targets))
 }
 
@@ -54,7 +54,7 @@ exports.getter = (key) =>
 
 exports.setter = (key) =>
   function (val) {
-    return exports.assign(this, {[key]:val})
+    return exports.modify(this, {[key]:val})
   }
 
 /**
@@ -75,7 +75,7 @@ exports.alias = (key, methodName) =>
   }
 
 /**
- * A combination between `assign` and `alias`. Creates a method that modifies an object's key and returns a new version
+ * A combination between `set` and `alias`. Creates a method that modifies an object's key and returns a new version
  * of the object with the new version of the key. Can be for creating shorthands for calling a `setter`.
  *
  * @param {string} key The key where the aliased object is stored.
@@ -87,7 +87,7 @@ exports.alias = (key, methodName) =>
 
 exports.lens = (key, methodName) =>
   function(...args) {
-    return exports.assign(this, {[key]: this[key][methodName](...args)})
+    return exports.modify(this, {[key]: this[key][methodName](...args)})
   }
 
 
