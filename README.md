@@ -9,7 +9,7 @@ This library facilitates a specific style of OOP which favours composition over 
 
 Making a user friendly persistent API is tricky, especially when dealing with nested structures. You have to explicitly construct a new object on each change. You cannot just call a method of an object you reference - you have to update the reference with the new version.
 
-However fluent persistent API's are also a real pleasure to use and they work as a very nice alternative to functional composition.JavaScript already has facilities for creating immmutable datastructures - the `Object.freeze` method, so all it takes to finish up the job is to define a couple of very simple helpers.
+However fluent persistent API's are also a real pleasure to use and they work as a very nice alternative to functional composition. JavaScript already has facilities for creating immmutable datastructures - the `Object.freeze` method so all it takes to finish up the job is to define a couple of very simple helpers.
 
 ##Example
 
@@ -122,7 +122,7 @@ of the object with the new version of the key. Can be for creating shorthands fo
 Creates a class-like object constructor.
 
 **Kind**: global function  
-**Returns**: <code>function</code> - A function which calls the prototype's `constructor` method and then sets the prototype ofthe resulting object to `proto`.  
+**Returns**: <code>function</code> - An object constructor which calls the prototype's `constructor` method and then sets the prototype ofthe resulting object to `proto`.  
 
 | Param | Type | Description |
 | --- | --- | --- |

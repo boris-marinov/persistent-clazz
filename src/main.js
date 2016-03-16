@@ -6,7 +6,7 @@ Object.assign = Object.assign || require('assign')
  * @param {object} proto The prototype. It can contain a `constructor` function which must return an object.
  * If it does not, a default constructor is used.
  * 
- * @returns {function} A function which calls the prototype's `constructor` method and then sets the prototype of
+ * @returns {function} An object constructor which calls the prototype's `constructor` method and then sets the prototype of
  * the resulting object to `proto`.
  */
 

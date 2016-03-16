@@ -30,7 +30,7 @@ of the object with the new version of the key. Can be for creating shorthands fo
 Creates a class-like object constructor.
 
 **Kind**: global function  
-**Returns**: <code>function</code> - A function which calls the prototype's `constructor` method and then sets the prototype ofthe resulting object to `proto`.  
+**Returns**: <code>function</code> - An object constructor which calls the prototype's `constructor` method and then sets the prototype ofthe resulting object to `proto`.  
 
 | Param | Type | Description |
 | --- | --- | --- |
