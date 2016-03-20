@@ -1,4 +1,5 @@
 Object.assign = Object.assign || require('assign')
+const id = a => a
 
 /**
  * Creates a class-like object constructor.
@@ -28,7 +29,7 @@ exports.clazz = (proto) => {
  *
  */
 
-exports.modify = function (source, ...targets) {
+exports.assign = function (source, ...targets) {
   return Object.freeze(Object.assign(Object.create(Object.getPrototypeOf(source)), source, ...targets))
 }
 
@@ -39,7 +40,7 @@ exports.modify = function (source, ...targets) {
  */
 
 exports.getter = (key) =>
-  function() {
+  function getter () {
     return this[key]
   }
 
@@ -52,9 +53,9 @@ exports.getter = (key) =>
  * where the value of `key` is changed changed to the one passed as an argument.
  */
 
-exports.setter = (key) =>
+exports.setter = (key, f) =>
   function (val) {
-    return exports.modify(this, {[key]:val})
+    return exports.assign(this, {[key]:(f||id)(val, this)})
   }
 
 /**
@@ -70,7 +71,7 @@ exports.setter = (key) =>
  */
 
 exports.alias = (key, methodName) =>
-  function(...args) {
+  function alias (...args) {
     return this[key][methodName](...args)
   }
 
@@ -86,8 +87,8 @@ exports.alias = (key, methodName) =>
  */
 
 exports.lens = (key, methodName) =>
-  function(...args) {
-    return exports.modify(this, {[key]: this[key][methodName](...args)})
+  function lens (...args) {
+    return exports.assign(this, {[key]: this[key][methodName](...args)})
   }
 
 

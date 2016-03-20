@@ -1,4 +1,12 @@
-const {clazz, getter, setter, alias, lens, modify} = require('../src/main')
+const {clazz, getter, setter, alias, lens, assign} = require('../src/main')
+
+const number = (val) => {
+  if (typeof val === 'number') {
+    return val
+  } else {
+    throw new Error(val + ' is not a number')
+  }
+}
 
 //Define a class-like object using the 'clazz' helper (or with any other)
 const Point = clazz({
@@ -10,8 +18,8 @@ const Point = clazz({
     return `(${this.x}, ${this.y})`
   },
   // Easily define getters and immutable setters with support for validation:
-  setX:setter('x'),
-  setY:setter('y'),
+  setX:setter('x', number),
+  setY:setter('y', number),
   getX:getter('x'),
   getY:getter('y'),
 })
@@ -32,6 +40,9 @@ exports.getterSetter = (test) => {
   // Old value remains unchanged
   test.equal(point.toString(), '(1, 2)' )
 
+  // Validation also works
+  test.throws(()=> { point.setX('a')} )
+
   test.done()
 }
 
@@ -51,9 +62,9 @@ const Circle = clazz({
   setX:lens('center', 'setX'),
   setY:lens('center', 'setY'),
 
-  // Use the low level 'modify' method to define custom modification methods without also defining explicit setters
+  // Use the low level 'assign' function to define custom modification methods without also defining explicit setters
   changeSize (amount) {
-    return modify(this, {radius: this.radius + amount})
+    return assign(this, {radius: this.radius + amount})
   }
 })
 
