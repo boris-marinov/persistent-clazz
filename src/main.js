@@ -1,6 +1,14 @@
 Object.assign = Object.assign || require('assign')
 const id = a => a
 
+const validateProps = (object) => {
+  if (typeof object.properties !== 'object') {
+    return object
+  } else {
+     
+  }
+}
+
 /**
  * Creates a class-like object constructor.
  *
@@ -30,7 +38,7 @@ exports.clazz = (proto) => {
  */
 
 exports.assign = function (source, ...targets) {
-  return Object.freeze(Object.assign(Object.create(Object.getPrototypeOf(source)), source, ...targets))
+  return Object.freeze(validateProps(Object.assign(Object.create(Object.getPrototypeOf(source)), source, ...targets)))
 }
 
 /**
@@ -90,5 +98,3 @@ exports.lens = (key, methodName) =>
   function lens (...args) {
     return exports.assign(this, {[key]: this[key][methodName](...args)})
   }
-
-

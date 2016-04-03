@@ -3,6 +3,9 @@
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 Object.assign = Object.assign || require('assign');
+var id = function id(a) {
+  return a;
+};
 
 /**
  * Creates a class-like object constructor.
@@ -36,7 +39,7 @@ exports.clazz = function (proto) {
  *
  */
 
-exports.modify = function (source) {
+exports.assign = function (source) {
   for (var _len = arguments.length, targets = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
     targets[_key - 1] = arguments[_key];
   }
@@ -51,7 +54,7 @@ exports.modify = function (source) {
  */
 
 exports.getter = function (key) {
-  return function () {
+  return function getter() {
     return this[key];
   };
 };
@@ -65,9 +68,9 @@ exports.getter = function (key) {
  * where the value of `key` is changed changed to the one passed as an argument.
  */
 
-exports.setter = function (key) {
+exports.setter = function (key, f) {
   return function (val) {
-    return exports.modify(this, _defineProperty({}, key, val));
+    return exports.assign(this, _defineProperty({}, key, (f || id)(val, this)));
   };
 };
 
@@ -84,7 +87,7 @@ exports.setter = function (key) {
  */
 
 exports.alias = function (key, methodName) {
-  return function () {
+  return function alias() {
     var _key2;
 
     return (_key2 = this[key])[methodName].apply(_key2, arguments);
@@ -103,9 +106,9 @@ exports.alias = function (key, methodName) {
  */
 
 exports.lens = function (key, methodName) {
-  return function () {
+  return function lens() {
     var _key3;
 
-    return exports.modify(this, _defineProperty({}, key, (_key3 = this[key])[methodName].apply(_key3, arguments)));
+    return exports.assign(this, _defineProperty({}, key, (_key3 = this[key])[methodName].apply(_key3, arguments)));
   };
 };

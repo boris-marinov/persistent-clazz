@@ -4,7 +4,7 @@
 <dt><a href="#clazz">clazz(proto)</a> ⇒ <code>function</code></dt>
 <dd><p>Creates a class-like object constructor.</p>
 </dd>
-<dt><a href="#modify">modify(source, target)</a> ⇒ <code>object</code></dt>
+<dt><a href="#assign">assign(source, target)</a> ⇒ <code>object</code></dt>
 <dd><p>Applies a transformation to one or several properties of an object and returns a transformed object with the same prototype
 and the same values of non-altered properties.</p>
 </dd>
@@ -36,9 +36,9 @@ Creates a class-like object constructor.
 | --- | --- | --- |
 | proto | <code>object</code> | The prototype. It can contain a `constructor` function which must return an object. If it does not, a default constructor is used. |
 
-<a name="modify"></a>
+<a name="assign"></a>
 
-## modify(source, target) ⇒ <code>object</code>
+## assign(source, target) ⇒ <code>object</code>
 Applies a transformation to one or several properties of an object and returns a transformed object with the same prototypeand the same values of non-altered properties.
 
 **Kind**: global function  

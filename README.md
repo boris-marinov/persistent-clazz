@@ -16,7 +16,15 @@ However fluent persistent API's are also a real pleasure to use and they work as
 The following example defines two types, `Point` and `Circle`, where both of them are persistent.
 
 ```javascript
-const {clazz, getter, setter, alias, lens, modify} = require('../src/main')
+const {clazz, getter, setter, alias, lens, assign} = require('../src/main')
+
+const number = (val) => {
+  if (typeof val === 'number') {
+    return val
+  } else {
+    throw new Error(val + ' is not a number')
+  }
+}
 
 //Define a class-like object using the 'clazz' helper (or with any other)
 const Point = clazz({
@@ -28,8 +36,8 @@ const Point = clazz({
     return `(${this.x}, ${this.y})`
   },
   // Easily define getters and immutable setters with support for validation:
-  setX:setter('x'),
-  setY:setter('y'),
+  setX:setter('x', number),
+  setY:setter('y', number),
   getX:getter('x'),
   getY:getter('y'),
 })
@@ -50,6 +58,9 @@ exports.getterSetter = (test) => {
   // Old value remains unchanged
   test.equal(point.toString(), '(1, 2)' )
 
+  // Validation also works
+  test.throws(()=> { point.setX('a')} )
+
   test.done()
 }
 
@@ -69,9 +80,9 @@ const Circle = clazz({
   setX:lens('center', 'setX'),
   setY:lens('center', 'setY'),
 
-  // Use the low level 'modify' method to define custom modification methods without also defining explicit setters
+  // Use the low level 'assign' function to define custom modification methods without also defining explicit setters
   changeSize (amount) {
-    return modify(this, {radius: this.radius + amount})
+    return assign(this, {radius: this.radius + amount})
   }
 })
 
@@ -96,7 +107,7 @@ exports.hierarchies = (test) => {
 <dt><a href="#clazz">clazz(proto)</a> ⇒ <code>function</code></dt>
 <dd><p>Creates a class-like object constructor.</p>
 </dd>
-<dt><a href="#modify">modify(source, target)</a> ⇒ <code>object</code></dt>
+<dt><a href="#assign">assign(source, target)</a> ⇒ <code>object</code></dt>
 <dd><p>Applies a transformation to one or several properties of an object and returns a transformed object with the same prototype
 and the same values of non-altered properties.</p>
 </dd>
@@ -128,9 +139,9 @@ Creates a class-like object constructor.
 | --- | --- | --- |
 | proto | <code>object</code> | The prototype. It can contain a `constructor` function which must return an object. If it does not, a default constructor is used. |
 
-<a name="modify"></a>
+<a name="assign"></a>
 
-## modify(source, target) ⇒ <code>object</code>
+## assign(source, target) ⇒ <code>object</code>
 Applies a transformation to one or several properties of an object and returns a transformed object with the same prototypeand the same values of non-altered properties.
 
 **Kind**: global function  
