@@ -1,19 +1,36 @@
 Object.assign = Object.assign || require('assign')
 const id = a => a
 
-const validateProps = (object) => {
-  if (typeof object.properties !== 'object') {
-    return object
-  } else {
-     
+const protoUtils = {
+  assign (...targets) {
+    return exports.assign(this, ...targets)
+  },
+  set (name, val) {
+    return exports.assign(this, {[name]: val})
+  },
+  remove (...props) {
+    return exports.remove(this, ...props)
   }
 }
+
+const expandProps = (proto) => typeof proto.props !== 'object'? proto : Object.keys(props)
+  .reduce((proto, propName) => {
+    const propValue = proto.props[propName]
+     
+  }, proto)
+
+
+const processProto = (proto) => expandProps(Object.assign(proto, protoUtils))
 
 /**
  * Creates a class-like object constructor.
  *
- * @param {object} proto The prototype. It can contain a `constructor` function which must return an object.
- * If it does not, a default constructor is used.
+ * @param {object} proto The prototype. 
+ *
+ * It can contain a key called `constructor` with function which must return an object.
+ * If it does, this function is used as the object's constructor. If it does not, a default constructor is used. 
+ *
+ * It can also contain a key called `properties` with a plain object specifying all properties that the object can have: `default`, `lens`, `alias`. See below.
  * 
  * @returns {function} An object constructor which calls the prototype's `constructor` method and then sets the prototype of
  * the resulting object to `proto`.
@@ -21,7 +38,8 @@ const validateProps = (object) => {
 
 exports.clazz = (proto) => {
   const constructor = typeof proto.constructor === 'function' ? proto.constructor : function(a){return a}
-  return (...args) => Object.assign(Object.create(proto), constructor(...args))
+  const protoProcessed = processProto(proto)
+  return (...args) => Object.assign(Object.create(protoProcessed), constructor(...args))
 }
 
 /**
@@ -38,7 +56,15 @@ exports.clazz = (proto) => {
  */
 
 exports.assign = function (source, ...targets) {
-  return Object.freeze(validateProps(Object.assign(Object.create(Object.getPrototypeOf(source)), source, ...targets)))
+  return Object.freeze(Object.assign(Object.create(Object.getPrototypeOf(source)), source, ...targets))
+}
+
+exports.remove = function (source, ...props) {
+  const copy = Object.assign(Object.create(Object.getPrototypeOf(source)))
+  return props.reduce((copy, prop) => {
+    delete copy[prop]
+    return copy
+  }, copy)
 }
 
 /**
