@@ -1,5 +1,6 @@
 Object.assign = Object.assign || require('assign')
 const id = a => a
+const {difference} = require('lodash')
 
 const protoUtils = {
   assign (...targets) {
@@ -13,14 +14,54 @@ const protoUtils = {
   }
 }
 
-const expandProps = (proto) => typeof proto.props !== 'object'? proto : Object.keys(props)
-  .reduce((proto, propName) => {
-    const propValue = proto.props[propName]
-     
-  }, proto)
+const typeCheckProto = (proto) => {
+  Object.keys(proto) 
+    .forEach((propName) => {
+      const prop = proto[propName] 
+      const meta = prop._clazzMetadata_
+      if(typeof meta === 'object') {
+        const memberObject = proto[meta.key]
+        if (typeof memberObject === 'undefined') {
+          throw TypeError(`The property \n
+                           "${meta.key}" is undefined in the clazz\n
+                           please set a default value for the property before making a(n) ${meta.functionType}`)
+        } else if (typeof memberObject !== 'object') {
+          throw TypeError(`The property \n
+                           "${meta.key}" is not an object.\n
+                           You cannot create an\n
+                           ${meta.functionType} for a non-object property`)
+                           
+        } else if (typeof memberObject[meta.func] !== 'function') {
+          throw TypeError(`The object that is stored in \n
+                           "${meta.key}" does not have a method  \n
+                           "${meta.func}"\n
+                           You cannot create an ${meta.functionType} for an unexisting method`)
+        }
+      }
+    })
+  return proto
+}
+
+const processProto = (proto) => typeCheckProto(Object.assign(proto, protoUtils))
+
+const typeCheck = (object, proto) => {
+  if(typeof object == 'undefined'){
+    return {}
+  } else if (typeof object !== 'object') {
+    throw TypeError(`Constructor expects a plain object but got "${typeof object}" instead`)
+  }
+  Object.keys(object).forEach((key) => {
+    if (typeof object[key] !== typeof proto[key]) {
+      throw TypeError(`"${key}" is set to a value of type \n
+                      "${typeof object[key]}" in the constructor, but it is a \n
+                      "${typeof proto[key]}" in the object prototype.`)
+    }
+  })
+  return object
+}
 
 
-const processProto = (proto) => expandProps(Object.assign(proto, protoUtils))
+
 
 /**
  * Creates a class-like object constructor.
@@ -37,9 +78,8 @@ const processProto = (proto) => expandProps(Object.assign(proto, protoUtils))
  */
 
 exports.clazz = (proto) => {
-  const constructor = typeof proto.constructor === 'function' ? proto.constructor : function(a){return a}
   const protoProcessed = processProto(proto)
-  return (...args) => Object.assign(Object.create(protoProcessed), constructor(...args))
+  return (obj) => Object.assign(Object.create(protoProcessed), typeCheck(obj, proto))
 }
 
 /**
@@ -59,6 +99,18 @@ exports.assign = function (source, ...targets) {
   return Object.freeze(Object.assign(Object.create(Object.getPrototypeOf(source)), source, ...targets))
 }
 
+/**
+ * Applies a transformation to one or several properties of an object and returns a transformed object with the same prototype
+ * and the same values of non-altered properties.
+ *
+ * @param {object} source The object which you want to transform.
+ *
+ * @param {object} target A plain object containing one or several keys which are to be changed or added to the instance, 
+ * along with their new values. Multiple targets are also supported.
+ *
+ * @returns {object} A new version of the instance object.
+ *
+ */
 exports.remove = function (source, ...props) {
   const copy = Object.assign(Object.create(Object.getPrototypeOf(source)))
   return props.reduce((copy, prop) => {
@@ -104,10 +156,18 @@ exports.setter = (key, f) =>
  *
  */
 
-exports.alias = (key, methodName) =>
-  function alias (...args) {
-    return this[key][methodName](...args)
+exports.alias = (key, func) => {
+  const f = function (...args) {
+    return this[key][func](...args)
   }
+  f._clazzMetadata_ = {
+    key,
+    func,
+    functionType:'alias'
+  }
+  f.name = func
+  return f
+}
 
 /**
  * A combination between `set` and `alias`. Creates a method that modifies an object's key and returns a new version
@@ -120,7 +180,15 @@ exports.alias = (key, methodName) =>
  * @returns {function} A function which when attached to an object calls the aliased method with the arguments given to it and returns a new version of the object where the value of `key` is replaced with the result of the method.
  */
 
-exports.lens = (key, methodName) =>
-  function lens (...args) {
-    return exports.assign(this, {[key]: this[key][methodName](...args)})
+exports.lens = (key, func) => {
+  const f = function lens (...args) {
+    return exports.assign(this, {[key]: this[key][func](...args)})
   }
+  f._clazzMetadata_ = {
+    key,
+    func,
+    functionType:'lens'
+  }
+  f.name = func
+  return f
+}

@@ -34,7 +34,7 @@ Creates a class-like object constructor.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| proto | <code>object</code> | The prototype. It can contain a `constructor` function which must return an object. If it does not, a default constructor is used. |
+| proto | <code>object</code> | The prototype.  It can contain a key called `constructor` with function which must return an object. If it does, this function is used as the object's constructor. If it does not, a default constructor is used.  It can also contain a key called `properties` with a plain object specifying all properties that the object can have: `default`, `lens`, `alias`. See below. |
 
 <a name="assign"></a>
 

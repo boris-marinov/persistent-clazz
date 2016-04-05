@@ -32,6 +32,10 @@ const Point = clazz({
   constructor(x, y) {
     return {x,y}
   },
+  properties: {
+    x: Number, 
+    y: Number
+  },
   toString(){
     return `(${this.x}, ${this.y})`
   },
@@ -66,12 +70,10 @@ exports.getterSetter = (test) => {
 
 
 const Circle = clazz({
-
-  //Use the objects that you have to build new ones.
-  constructor (x, y, radius) {
-    const center = Point(x, y)
-    return { center, radius }
-  },
+  properties: {
+    center:Point,
+    radius: Number
+  }
 
   //Create lenses for accessing properties of member objects
   printCenter: alias('center', 'toString'),
@@ -80,25 +82,33 @@ const Circle = clazz({
   setX:lens('center', 'setX'),
   setY:lens('center', 'setY'),
 
-  // Use the low level 'assign' function to define custom modification methods without also defining explicit setters
+  // Use the low level 'assign' method to define custom modification methods without also defining explicit setters
   changeSize (amount) {
-    return assign(this, {radius: this.radius + amount})
+    return this.assign({radius: this.radius + amount})
   }
 })
 
-exports.hierarchies = (test) => {
-  const circle = Circle(0, 0, 1)
-  // And use methods for both the host and member objects.
+exports.hierarchies = ({throws, equal, done}) => {
+  // When there is no constructor defined, you just pass a plain object that you want to use:
+  const circle = Circle({radius:1})
+
+  //The properties you pass are validated
+  throws(()=> Circle({radius:'1'}))
+
+  // Defined properties are automatically initialized:
+  equal(circle.center, {x: 0, y: 0})
+
+  //You can use methods for both the host and member objects.
   biggerCircle = circle
                   .changeSize(1)
                   .setX(10)
                   .setY(10)
 
-  test.equal(biggerCircle.radius, 2)
+  equal(biggerCircle.radius, 2)
 
-  test.equal(biggerCircle.printCenter(), '(10, 10)')
+  equal(biggerCircle.printCenter(), '(10, 10)')
 
-  test.done()
+  done()
 }
 ```
 ## Functions
@@ -137,7 +147,7 @@ Creates a class-like object constructor.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| proto | <code>object</code> | The prototype. It can contain a `constructor` function which must return an object. If it does not, a default constructor is used. |
+| proto | <code>object</code> | The prototype.  It can contain a key called `constructor` with function which must return an object. If it does, this function is used as the object's constructor. If it does not, a default constructor is used.  It can also contain a key called `properties` with a plain object specifying all properties that the object can have: `default`, `lens`, `alias`. See below. |
 
 <a name="assign"></a>
 
