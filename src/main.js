@@ -165,7 +165,6 @@ exports.alias = (key, func) => {
     func,
     functionType:'alias'
   }
-  f.name = func
   return f
 }
 
@@ -189,6 +188,5 @@ exports.lens = (key, func) => {
     func,
     functionType:'lens'
   }
-  f.name = func
   return f
 }
