@@ -191,7 +191,6 @@ exports.alias = function (key, func) {
     func: func,
     functionType: 'alias'
   };
-  f.name = func;
   return f;
 };
 
@@ -217,6 +216,5 @@ exports.lens = function (key, func) {
     func: func,
     functionType: 'lens'
   };
-  f.name = func;
   return f;
 };

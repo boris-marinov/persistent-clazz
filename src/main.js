@@ -42,7 +42,7 @@ const typeCheckProto = (proto) => {
   return proto
 }
 
-const processProto = (proto) => typeCheckProto(Object.assign(proto, protoUtils))
+const processProto = (proto) => typeCheckProto(Object.assign({}, protoUtils, proto))
 
 const typeCheck = (object, proto) => {
   if(typeof object == 'undefined'){
