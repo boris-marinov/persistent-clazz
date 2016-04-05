@@ -8,6 +8,10 @@
 <dd><p>Applies a transformation to one or several properties of an object and returns a transformed object with the same prototype
 and the same values of non-altered properties.</p>
 </dd>
+<dt><a href="#remove">remove(source, target)</a> ⇒ <code>object</code></dt>
+<dd><p>Applies a transformation to one or several properties of an object and returns a transformed object with the same prototype
+and the same values of non-altered properties.</p>
+</dd>
 <dt><a href="#getter">getter(key)</a> ⇒ <code>function</code></dt>
 <dd><p>Creates a method that retrieves the value of a property.</p>
 </dd>
@@ -39,6 +43,19 @@ Creates a class-like object constructor.
 <a name="assign"></a>
 
 ## assign(source, target) ⇒ <code>object</code>
+Applies a transformation to one or several properties of an object and returns a transformed object with the same prototypeand the same values of non-altered properties.
+
+**Kind**: global function  
+**Returns**: <code>object</code> - A new version of the instance object.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| source | <code>object</code> | The object which you want to transform. |
+| target | <code>object</code> | A plain object containing one or several keys which are to be changed or added to the instance,  along with their new values. Multiple targets are also supported. |
+
+<a name="remove"></a>
+
+## remove(source, target) ⇒ <code>object</code>
 Applies a transformation to one or several properties of an object and returns a transformed object with the same prototypeand the same values of non-altered properties.
 
 **Kind**: global function  

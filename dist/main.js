@@ -9,6 +9,11 @@ var id = function id(a) {
   return a;
 };
 
+var _require = require('lodash');
+
+var difference = _require.difference;
+
+
 var protoUtils = {
   assign: function assign() {
     var _exports;
@@ -33,14 +38,40 @@ var protoUtils = {
   }
 };
 
-var expandProps = function expandProps(proto) {
-  return _typeof(proto.props) !== 'object' ? proto : Object.keys(props).reduce(function (proto, propName) {
-    var propValue = proto.props[propName];
-  }, proto);
+var typeCheckProto = function typeCheckProto(proto) {
+  Object.keys(proto).forEach(function (propName) {
+    var prop = proto[propName];
+    var meta = prop._clazzMetadata_;
+    if ((typeof meta === 'undefined' ? 'undefined' : _typeof(meta)) === 'object') {
+      var memberObject = proto[meta.key];
+      if (typeof memberObject === 'undefined') {
+        throw TypeError('The property \n\n                           "' + meta.key + '" is undefined in the clazz\n\n                           please set a default value for the property before making a(n) ' + meta.functionType);
+      } else if ((typeof memberObject === 'undefined' ? 'undefined' : _typeof(memberObject)) !== 'object') {
+        throw TypeError('The property \n\n                           "' + meta.key + '" is not an object.\n\n                           You cannot create an\n\n                           ' + meta.functionType + ' for a non-object property');
+      } else if (typeof memberObject[meta.func] !== 'function') {
+        throw TypeError('The object that is stored in \n\n                           "' + meta.key + '" does not have a method  \n\n                           "' + meta.func + '"\n\n                           You cannot create an ' + meta.functionType + ' for an unexisting method');
+      }
+    }
+  });
+  return proto;
 };
 
 var processProto = function processProto(proto) {
-  return expandProps(Object.assign(proto, protoUtils));
+  return typeCheckProto(Object.assign(proto, protoUtils));
+};
+
+var typeCheck = function typeCheck(object, proto) {
+  if (typeof object == 'undefined') {
+    return {};
+  } else if ((typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
+    throw TypeError('Constructor expects a plain object but got "' + (typeof object === 'undefined' ? 'undefined' : _typeof(object)) + '" instead');
+  }
+  Object.keys(object).forEach(function (key) {
+    if (_typeof(object[key]) !== _typeof(proto[key])) {
+      throw TypeError('"' + key + '" is set to a value of type \n\n                      "' + _typeof(object[key]) + '" in the constructor, but it is a \n\n                      "' + _typeof(proto[key]) + '" in the object prototype.');
+    }
+  });
+  return object;
 };
 
 /**
@@ -58,12 +89,9 @@ var processProto = function processProto(proto) {
  */
 
 exports.clazz = function (proto) {
-  var constructor = typeof proto.constructor === 'function' ? proto.constructor : function (a) {
-    return a;
-  };
   var protoProcessed = processProto(proto);
-  return function () {
-    return Object.assign(Object.create(protoProcessed), constructor.apply(undefined, arguments));
+  return function (obj) {
+    return Object.assign(Object.create(protoProcessed), typeCheck(obj, proto));
   };
 };
 
@@ -88,6 +116,18 @@ exports.assign = function (source) {
   return Object.freeze(Object.assign.apply(Object, [Object.create(Object.getPrototypeOf(source)), source].concat(targets)));
 };
 
+/**
+ * Applies a transformation to one or several properties of an object and returns a transformed object with the same prototype
+ * and the same values of non-altered properties.
+ *
+ * @param {object} source The object which you want to transform.
+ *
+ * @param {object} target A plain object containing one or several keys which are to be changed or added to the instance, 
+ * along with their new values. Multiple targets are also supported.
+ *
+ * @returns {object} A new version of the instance object.
+ *
+ */
 exports.remove = function (source) {
   var copy = Object.assign(Object.create(Object.getPrototypeOf(source)));
 
@@ -140,12 +180,19 @@ exports.setter = function (key, f) {
  *
  */
 
-exports.alias = function (key, methodName) {
-  return function alias() {
+exports.alias = function (key, func) {
+  var f = function f() {
     var _key5;
 
-    return (_key5 = this[key])[methodName].apply(_key5, arguments);
+    return (_key5 = this[key])[func].apply(_key5, arguments);
   };
+  f._clazzMetadata_ = {
+    key: key,
+    func: func,
+    functionType: 'alias'
+  };
+  f.name = func;
+  return f;
 };
 
 /**
@@ -159,10 +206,17 @@ exports.alias = function (key, methodName) {
  * @returns {function} A function which when attached to an object calls the aliased method with the arguments given to it and returns a new version of the object where the value of `key` is replaced with the result of the method.
  */
 
-exports.lens = function (key, methodName) {
-  return function lens() {
+exports.lens = function (key, func) {
+  var f = function lens() {
     var _key6;
 
-    return exports.assign(this, _defineProperty({}, key, (_key6 = this[key])[methodName].apply(_key6, arguments)));
+    return exports.assign(this, _defineProperty({}, key, (_key6 = this[key])[func].apply(_key6, arguments)));
   };
+  f._clazzMetadata_ = {
+    key: key,
+    func: func,
+    functionType: 'lens'
+  };
+  f.name = func;
+  return f;
 };
